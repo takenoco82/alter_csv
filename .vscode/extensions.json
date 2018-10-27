@@ -1,0 +1,16 @@
+{
+    "recommendations": [
+        // pathon
+        "ms-python.python",
+        "njpwerner.autodocstring",
+        // git
+        "eamodio.gitlens",
+        // csv, tsv
+        "mechatroner.rainbow-csv",
+        "grapecity.gc-excelviewer",
+        // other
+        "coenraads.bracket-pair-colorizer",
+        "saikou9901.evilinspector",
+        "robertohuertasm.vscode-icons"
+    ]
+}
