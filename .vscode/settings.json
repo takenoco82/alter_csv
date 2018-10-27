@@ -19,6 +19,9 @@
     "gitlens.codeLens.authors.enabled": false,
     "gitlens.codeLens.recentChange.enabled": false,
     "python.pythonPath": "~/.pyenv/shims/python",
+    "python.autoComplete.extraPaths": [
+        "~/.pyenv/versions/3.7.0/lib/python3.7/site-packages"
+    ],
     "python.formatting.autopep8Args": [
         "--ignore=E501"
     ],
