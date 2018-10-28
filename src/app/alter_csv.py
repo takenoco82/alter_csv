@@ -25,7 +25,7 @@ class ColumnAlreadyExistsError(Exception):
     pass
 
 
-def delimiter(filepath: str) -> str:
+def _delimiter(filepath: str) -> str:
     extention = os.path.splitext(filepath)[1]
     if re.match("\\.csv", extention, re.IGNORECASE):
         return ","
@@ -36,7 +36,8 @@ def delimiter(filepath: str) -> str:
 
 def command_add(args: Namespace):
     filepath = args.file
-    df = pandas.read_csv(filepath, sep=delimiter(filepath), dtype=str)
+    delimiter = _delimiter(filepath)
+    df = pandas.read_csv(filepath, sep=delimiter, dtype=str)
 
     new_column = args.column
     after = args.after
@@ -63,12 +64,13 @@ def command_add(args: Namespace):
     else:
         new_headers.append(new_column)
 
-    df[new_headers].to_csv(args.file, sep=",", index=False)
+    df[new_headers].to_csv(args.file, sep=delimiter, index=False)
 
 
 def command_delete(args: Namespace):
     filepath = args.file
-    df = pandas.read_csv(filepath, sep=delimiter(filepath), dtype=str)
+    delimiter = _delimiter(filepath)
+    df = pandas.read_csv(filepath, sep=delimiter, dtype=str)
 
     target_column = args.column
 
@@ -83,12 +85,13 @@ def command_delete(args: Namespace):
     i = headers.index(target_column)
     new_headers.pop(i)
 
-    df[new_headers].to_csv(args.file, sep=",", index=False)
+    df[new_headers].to_csv(args.file, sep=delimiter, index=False)
 
 
 def command_change(args: Namespace):
     filepath = args.file
-    df = pandas.read_csv(filepath, sep=delimiter(filepath), dtype=str)
+    delimiter = _delimiter(filepath)
+    df = pandas.read_csv(filepath, sep=delimiter, dtype=str)
 
     old_column = args.old_column
     new_column = args.new_column
@@ -110,7 +113,7 @@ def command_change(args: Namespace):
     i = headers.index(old_column)
     new_headers[i] = new_column
 
-    df[new_headers].to_csv(args.file, sep=",", index=False)
+    df[new_headers].to_csv(args.file, sep=delimiter, index=False)
 
 
 def parse_args(args) -> Namespace:
