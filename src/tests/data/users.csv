@@ -1,0 +1,4 @@
+user_id,username,first_name,last_name,email,phone
+1,username1,first_name1,last_name1,sample1@example.com,12345678901
+2,username2,first_name2,last_name1,sample2@example.com,12345678902
+3,username3,first_name3,last_name1,sample3@example.com,12345678903

@@ -1,21 +1,116 @@
 import argparse
+import os
+import re
 import sys
 from argparse import Namespace
+from logging import DEBUG, basicConfig, getLogger
+
+import pandas
+
+# ログ出力設定
+formatter = "%(asctime)s [%(levelname)-5s] %(message)s"
+basicConfig(level=DEBUG, format=formatter)
+logger = getLogger(__name__)
+
+
+class UnsupportedFileError(Exception):
+    pass
+
+
+class ColumnNotFoundError(Exception):
+    pass
+
+
+class ColumnAlreadyExistsError(Exception):
+    pass
+
+
+def delimiter(filepath: str) -> str:
+    extention = os.path.splitext(filepath)[1]
+    if re.match("\\.csv", extention, re.IGNORECASE):
+        return ","
+    elif re.match("\\.tsv", extention, re.IGNORECASE):
+        return "\t"
+    raise UnsupportedFileError("extention `{}` is unsupported".format(extention))
 
 
 def command_add(args: Namespace):
-    # TODO 未実装
-    print("add {}".format(args))
+    filepath = args.file
+    df = pandas.read_csv(filepath, sep=delimiter(filepath), dtype=str)
+
+    new_column = args.column
+    after = args.after
+
+    # 入力チェック
+    headers = list(df.columns.values)
+    if new_column in headers:
+        message = "column `{}` already exist".format(new_column)
+        raise ColumnAlreadyExistsError(message)
+    if after and after not in headers:
+        message = "column `{}` is not found".format(after)
+        raise ColumnNotFoundError(message)
+
+    # 項目の追加
+    df[new_column] = args.default
+
+    # 出力する項目
+    new_headers = headers[:]
+    if args.first:
+        new_headers.insert(0, new_column)
+    elif after:
+        i = headers.index(after)
+        new_headers.insert(i + 1, new_column)
+    else:
+        new_headers.append(new_column)
+
+    df[new_headers].to_csv(args.file, sep=",", index=False)
 
 
 def command_delete(args: Namespace):
-    # TODO 未実装
-    print("delete {}".format(args))
+    filepath = args.file
+    df = pandas.read_csv(filepath, sep=delimiter(filepath), dtype=str)
+
+    target_column = args.column
+
+    # 入力チェック
+    headers = list(df.columns.values)
+    if target_column not in headers:
+        message = "column `{}` is not found".format(target_column)
+        raise ColumnNotFoundError(message)
+
+    # 出力する項目
+    new_headers = headers[:]
+    i = headers.index(target_column)
+    new_headers.pop(i)
+
+    df[new_headers].to_csv(args.file, sep=",", index=False)
 
 
 def command_change(args: Namespace):
-    # TODO 未実装
-    print("change {}".format(args))
+    filepath = args.file
+    df = pandas.read_csv(filepath, sep=delimiter(filepath), dtype=str)
+
+    old_column = args.old_column
+    new_column = args.new_column
+
+    # 入力チェック
+    headers = list(df.columns.values)
+    if old_column not in headers:
+        message = "column `{}` is not found".format(old_column)
+        raise ColumnNotFoundError(message)
+    if new_column in headers:
+        message = "column `{}` already exist".format(new_column)
+        raise ColumnAlreadyExistsError(message)
+
+    # 項目の追加
+    df[new_column] = df[old_column]
+
+    # 出力する項目
+    new_headers = headers[:]
+    i = headers.index(old_column)
+    new_headers[i] = new_column
+
+    df[new_headers].to_csv(args.file, sep=",", index=False)
 
 
 def parse_args(args) -> Namespace:
@@ -50,9 +145,17 @@ def parse_args(args) -> Namespace:
 
 
 def main():
-    args = parse_args(sys.argv[1:])
-    # ここまできたら handlerがないことはありえない
-    args.handler(args)
+    logger.info("start")
+    try:
+        args = parse_args(sys.argv[1:])
+        # ここまできたら handlerがないことはありえない
+        args.handler(args)
+    except (UnsupportedFileError, FileNotFoundError, ColumnNotFoundError, ColumnAlreadyExistsError) as e:
+        logger.error(e)
+        sys.exit(1)
+
+    logger.info("end")
+    sys.exit(0)
 
 
 if __name__ == '__main__':
