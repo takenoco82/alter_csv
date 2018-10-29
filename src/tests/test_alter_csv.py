@@ -3,6 +3,9 @@ import unittest
 from parameterized import param, parameterized
 
 from app import alter_csv
+from app.command.add import Add
+from app.command.change import Change
+from app.command.delete import Delete
 
 
 class TestAlterCsv(unittest.TestCase):
@@ -31,7 +34,7 @@ class TestAlterCsv(unittest.TestCase):
                 "default": None,
                 "first": False,
                 "after": None,
-                "handler": alter_csv.command_add
+                "handler": Add
             }
         ),
         # add defaultあり
@@ -89,7 +92,7 @@ class TestAlterCsv(unittest.TestCase):
             expected={
                 "file": "filepath",
                 "column": "col_name",
-                "handler": alter_csv.command_delete
+                "handler": Delete
             }
         ),
         # change 必須パラメータのみ
@@ -100,7 +103,7 @@ class TestAlterCsv(unittest.TestCase):
                 "file": "filepath",
                 "old_column": "old_col_name",
                 "new_column": "new_col_name",
-                "handler": alter_csv.command_change
+                "handler": Change
             }
         ),
     ])
