@@ -1,6 +1,7 @@
 from argparse import Namespace
 
 import pandas
+from pandas.core.frame import DataFrame
 
 from app.command.sub_command import SubCommand
 from app.error.column_already_exists_error import ColumnAlreadyExistsError
@@ -17,10 +18,14 @@ class Add(SubCommand):
         self.after = args.after
 
     def execute(self):
-        df = pandas.read_csv(self.file, sep=self.delimiter, dtype=str)
+        before = pandas.read_csv(self.file, sep=self.delimiter, dtype=str)
+        after = self.process(before)
+        after.to_csv(self.file, sep=self.delimiter, index=False)
+
+    def process(self, df: DataFrame) -> DataFrame:
+        headers = list(df.columns.values)
 
         # 入力チェック
-        headers = list(df.columns.values)
         if self.column in headers:
             message = "column `{}` already exist".format(self.column)
             raise ColumnAlreadyExistsError(message)
@@ -41,4 +46,4 @@ class Add(SubCommand):
         else:
             new_headers.append(self.column)
 
-        df[new_headers].to_csv(self.file, sep=self.delimiter, index=False)
+        return df[new_headers]

@@ -1,6 +1,7 @@
 from argparse import Namespace
 
 import pandas
+from pandas.core.frame import DataFrame
 
 from app.command.sub_command import SubCommand
 from app.error.column_not_found_error import ColumnNotFoundError
@@ -13,10 +14,14 @@ class Delete(SubCommand):
         self.column = args.column
 
     def execute(self):
-        df = pandas.read_csv(self.file, sep=self.delimiter, dtype=str)
+        before = pandas.read_csv(self.file, sep=self.delimiter, dtype=str)
+        after = self.process(before)
+        after.to_csv(self.file, sep=self.delimiter, index=False)
+
+    def process(self, df: DataFrame) -> DataFrame:
+        headers = list(df.columns.values)
 
         # 入力チェック
-        headers = list(df.columns.values)
         if self.column not in headers:
             message = "column `{}` is not found".format(self.column)
             raise ColumnNotFoundError(message)
@@ -26,4 +31,4 @@ class Delete(SubCommand):
         i = headers.index(self.column)
         new_headers.pop(i)
 
-        df[new_headers].to_csv(self.file, sep=self.delimiter, index=False)
+        return df[new_headers]

@@ -1,6 +1,7 @@
 from argparse import Namespace
 
 import pandas
+from pandas.core.frame import DataFrame
 
 from app.command.sub_command import SubCommand
 from app.error.column_already_exists_error import ColumnAlreadyExistsError
@@ -15,10 +16,14 @@ class Change(SubCommand):
         self.new_column = args.new_column
 
     def execute(self):
-        df = pandas.read_csv(self.file, sep=self.delimiter, dtype=str)
+        before = pandas.read_csv(self.file, sep=self.delimiter, dtype=str)
+        after = self.process(before)
+        after.to_csv(self.file, sep=self.delimiter, index=False)
+
+    def process(self, df: DataFrame) -> DataFrame:
+        headers = list(df.columns.values)
 
         # 入力チェック
-        headers = list(df.columns.values)
         if self.old_column not in headers:
             message = "column `{}` is not found".format(self.old_column)
             raise ColumnNotFoundError(message)
@@ -34,4 +39,4 @@ class Change(SubCommand):
         i = headers.index(self.old_column)
         new_headers[i] = self.new_column
 
-        df[new_headers].to_csv(self.file, sep=self.delimiter, index=False)
+        return df[new_headers]
