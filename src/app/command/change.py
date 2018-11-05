@@ -1,6 +1,5 @@
 from argparse import Namespace
 
-import pandas
 from pandas.core.frame import DataFrame
 
 from app.command.sub_command import SubCommand
@@ -10,15 +9,9 @@ from app.error.column_not_found_error import ColumnNotFoundError
 
 class Change(SubCommand):
     def __init__(self, args: Namespace) -> None:
-        self.file = args.file
-        self.delimiter = self.get_delimiter(args.file)
+        super().__init__(args)
         self.old_column = args.old_column
         self.new_column = args.new_column
-
-    def execute(self):
-        before = pandas.read_csv(self.file, sep=self.delimiter, dtype=str)
-        after = self.process(before)
-        after.to_csv(self.file, sep=self.delimiter, index=False)
 
     def process(self, df: DataFrame) -> DataFrame:
         headers = list(df.columns.values)
