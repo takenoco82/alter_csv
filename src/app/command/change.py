@@ -20,6 +20,9 @@ class Change(SubCommand):
         if self.old_column not in headers:
             message = "column `{}` is not found".format(self.old_column)
             raise ColumnNotFoundError(message)
+        if self.old_column == self.new_column:
+            # 同じ名前の場合は変更せずにそのまま返却する
+            return df
         if self.new_column in headers:
             message = "column `{}` already exist".format(self.new_column)
             raise ColumnAlreadyExistsError(message)
