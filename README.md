@@ -5,7 +5,7 @@
 # 項目を追加する
 python alter_csv.py add "path/to/users.csv" new_col_name
 
-# 項目を追加する: デフォルト値を指定
+# 項目を追加する: デフォルト値を指定
 python alter_csv.py add "path/to/users.csv" new_col_name --default 1
 
 # 項目を追加する: 追加する位置を指定
