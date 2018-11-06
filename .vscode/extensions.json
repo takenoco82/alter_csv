@@ -11,6 +11,7 @@
         // other
         "coenraads.bracket-pair-colorizer",
         "saikou9901.evilinspector",
-        "robertohuertasm.vscode-icons"
+        "robertohuertasm.vscode-icons",
+        "davidhouchin.whitespace-plus"
     ]
 }
